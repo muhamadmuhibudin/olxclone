@@ -467,7 +467,7 @@
             <hr class="bg-secondary">
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <p class="mb-0">&copy; 2025 OLXClone. Hak Cipta Dilindungi.</p>
+                    <p class="mb-0">&copy; 2025 OLXClone. All Rights Reserved.</p>
                 </div>
             </div>
         </div>
