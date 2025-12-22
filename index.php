@@ -178,13 +178,13 @@
                         <a class="nav-link" href="#"><i class="far fa-bell me-1"></i> Notifikasi</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-tag me-1"></i> Iklan Saya</a>
+                        <a class="nav-link" href="/OLXCLONE/detail.php"><i class="fas fa-tag me-1"></i> Iklan Saya</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#"><i class="fas fa-user-circle me-1"></i> Akun Saya</a>
                     </li>
                     <li class="nav-item ms-2">
-                        <a href="#" class="btn btn-success"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
+                        <a href="/OLXCLONE/post-ad.php" class="btn btn-success"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
                     </li>
                 </ul>
             </div>
