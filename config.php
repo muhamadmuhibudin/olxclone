@@ -12,7 +12,7 @@ ini_set('display_errors', 1);
 // Set timezone
 date_default_timezone_set('Asia/Jakarta');
 
-// Start session if not already started
+// Start session if not already started 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

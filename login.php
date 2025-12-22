@@ -1,5 +1,46 @@
 <?php
-session_start();
+require_once 'config.php';
+
+// Initialize error message
+$error_message = '';
+
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_POST['password'])) {
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password'];
+    
+    // Basic validation
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = 'Email tidak valid';
+    } elseif (empty($password)) {
+        $error_message = 'Password harus diisi';
+    } else {
+        try {
+            // Prepare and execute query
+            $stmt = $pdo->prepare("SELECT id, name, email, password FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+            
+            // Verify user exists and password is correct
+            if ($user && password_verify($password, $user['password'])) {
+                // Set session variables
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['logged_in'] = true;
+                
+                // Redirect to dashboard or home page
+                header('Location: index.php');
+                exit();
+            } else {
+                $error_message = 'Email atau password salah';
+            }
+        } catch (PDOException $e) {
+            error_log("Login Error: " . $e->getMessage());
+            $error_message = 'Terjadi kesalahan. Silakan coba lagi nanti.';
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,6 +108,9 @@ session_start();
         .register-link a:hover {
             text-decoration: underline;
         }
+        .alert {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -106,19 +150,27 @@ session_start();
                 <h2>Masuk ke Akun Anda</h2>
                 <p class="text-muted">Masukkan email dan password Anda untuk melanjutkan</p>
             </div>
-            <form action="process_login.php" method="POST">
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo htmlspecialchars($error_message); ?>
+                </div>
+            <?php endif; ?>
+            <form id="loginForm" method="POST" onsubmit="return handleLogin(event)">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="contoh@email.com" required>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" 
+                               placeholder="contoh@email.com" required>
                     </div>
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password" required>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Masukkan password" required>
                         <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -127,10 +179,13 @@ session_start();
                         <a href="#" class="text-decoration-none" style="color: #002f34; font-size: 0.9rem;">Lupa password?</a>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-login mb-3">Masuk</button>
+                <button type="submit" class="btn btn-login mb-3">
+                    <span id="loginButtonText">Masuk</span>
+                    <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
                 <div class="text-center">
                     <p class="text-muted">Atau masuk dengan</p>
-                    <div class="d-flex justify-content-center gap-3">
+                    <div class="d-flex justify-content-center gap-3 mb-3">
                         <a href="#" class="btn btn-outline-primary" style="border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
                             <i class="fab fa-google"></i>
                         </a>
@@ -207,6 +262,69 @@ session_start();
                 icon.classList.add('fa-eye');
             }
         });
+
+        // Handle form submission with AJAX
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const loginButtonText = document.getElementById('loginButtonText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loginButtonText.textContent = 'Memproses...';
+            loginSpinner.classList.remove('d-none');
+            
+            // Send form data
+            fetch('login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.text();
+            })
+            .then(html => {
+                if (html) {
+                    // Create a temporary div to parse the HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Check for error messages
+                    const errorAlert = tempDiv.querySelector('.alert-danger');
+                    if (errorAlert) {
+                        // Remove any existing alerts
+                        const existingAlert = form.querySelector('.alert');
+                        if (existingAlert) {
+                            existingAlert.remove();
+                        }
+                        
+                        // Insert the new alert
+                        form.insertBefore(errorAlert, form.firstChild);
+                        
+                        // Scroll to the top of the form
+                        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi nanti.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                loginButtonText.textContent = 'Masuk';
+                loginSpinner.classList.add('d-none');
+            });
+            
+            return false;
+        }
     </script>
 </body>
 </html>
