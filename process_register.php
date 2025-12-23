@@ -8,6 +8,48 @@ $response = [
     'field_errors' => []
 ];
 
+function formatWhatsAppNumber($number) {
+    // Remove any non-digit characters
+    $number = preg_replace('/[^0-9]/', '', $number);
+    
+    // Handle different number formats
+    if (strpos($number, '0') === 0) {
+        // If number starts with 0, replace with +62
+        $number = '+62' . substr($number, 1);
+    } elseif (strpos($number, '62') === 0) {
+        // If number starts with 62, add +
+        $number = '+' . $number;
+    } elseif (strpos($number, '+62') !== 0) {
+        // If number doesn't start with +62, add it
+        $number = '+62' . $number;
+    }
+    
+    return $number;
+}
+// In the main code, after getting the form data, add:
+$whatsapp = isset($_POST['whatsapp']) ? trim($_POST['whatsapp']) : '';
+// Add validation for WhatsApp number
+if (empty($whatsapp)) {
+    $response['field_errors']['whatsapp'] = 'Nomor WhatsApp harus diisi';
+} elseif (!preg_match('/^(\+62|62|0)[0-9]{8,15}$/', $whatsapp)) {
+    $response['field_errors']['whatsapp'] = 'Format nomor WhatsApp tidak valid';
+} else {
+    // Format the WhatsApp number
+    $whatsapp = formatWhatsAppNumber($whatsapp);
+}
+// In the database insert query, include the whatsapp field:
+$stmt = $pdo->prepare("
+    INSERT INTO users (name, email, password, whatsapp) 
+    VALUES (?, ?, ?, ?)
+");
+// And update the execute statement:
+if ($stmt->execute([$name, $email, $hashed_password, $whatsapp])) {
+    // Registration successful
+    $response['status'] = 'success';
+    $response['message'] = 'Pendaftaran berhasil! Silakan login.';
+    $response['redirect'] = 'login.php';
+}
+
 // Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data

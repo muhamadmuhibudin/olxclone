@@ -1,6 +1,7 @@
 <?php
 session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,8 @@ session_start();
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         :root {
             --primary-color: #002f34;
@@ -20,6 +22,11 @@ session_start();
         body {
             background-color: #f7f8f9;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        #togglePassword i,
+        #toggleConfirmPassword i {
+        color: #002f34;
+        font-size: 16px;
         }
         .register-container {
             max-width: 500px;
@@ -71,6 +78,23 @@ session_start();
             background-color: var(--primary-color);
             border-color: var(--primary-color);
         }
+        /* Add this to your existing CSS */
+.input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+}
+
+.input-group-text .fa-eye,
+.input-group-text .fa-eye-slash {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+/* Ensure consistent height for input groups */
+.input-group > .form-control,
+.input-group > .input-group-text {
+    height: calc(2.25rem + 2px);
+}
     </style>
 </head>
 <body>
@@ -129,33 +153,40 @@ session_start();
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="phone" class="form-label">Nomor Telepon</label>
-                    <div class="input-group">
-                        <span class="input-group-text">+62</span>
-                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="81234567890" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    <div class="form-text">Minimal 8 karakter, kombinasi huruf dan angka</div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
-                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
+    <label for="whatsapp" class="form-label">Nomor WhatsApp</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+        <input type="tel" class="form-control" id="whatsapp" name="whatsapp" 
+               pattern="^(\+62|62|0)[0-9]{8,15}$" 
+               title="Masukkan nomor WhatsApp yang valid (contoh: 081234567890)" 
+               placeholder="081234567890" required>
+    </div>
+    <div class="form-text">Contoh: 081234567890</div>
+</div>
+                <!-- Update the password input group -->
+<div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+        <input type="password" id="password" name="password" class="form-control password-input" required>
+        <span class="input-group-text toggle-password" style="cursor:pointer">
+            <i class="fa-solid fa-eye"></i>
+        </span>
+    </div>
+    <div class="form-text">Minimal 8 karakter, kombinasi huruf dan angka</div>
+</div>
+
+<!-- Update the confirm password input group -->
+<div class="mb-3">
+    <label for="confirmPassword" class="form-label">Konfirmasi Password</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+        <input type="password" id="confirmPassword" name="confirm_password" class="form-control confirm-password-input" required>
+        <span class="input-group-text toggle-password" style="cursor:pointer">
+            <i class="fa-solid fa-eye"></i>
+        </span>
+    </div>
+</div>
                 <div class="mb-4">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="terms" required>
@@ -229,70 +260,82 @@ session_start();
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Toggle password visibility
-        function togglePassword(inputId, buttonId) {
-            const passwordInput = document.getElementById(inputId);
-            const icon = document.querySelector(`#${buttonId} i`);
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // Add event listeners for both password fields
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            togglePassword('password', 'togglePassword');
-        });
-
-        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-            togglePassword('confirmPassword', 'toggleConfirmPassword');
-        });
-
-        // Password match validation
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-
-        function validatePassword() {
-            if (password.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity("Password tidak cocok");
-            } else {
-                confirmPassword.setCustomValidity('');
-            }
-        }
-
-        password.onchange = validatePassword;
-        confirmPassword.onkeyup = validatePassword;
-
-// 
-document.addEventListener('DOMContentLoaded', function() {
-    const registerForm = document.querySelector('form');
-    const togglePassword = document.getElementById('togglePassword');
-    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    
+        document.addEventListener("DOMContentLoaded", function() {
     // Toggle password visibility
-    if (togglePassword) {
-        togglePassword.addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-            this.querySelector('i').classList.toggle('fa-eye-slash');
+    document.querySelectorAll('.toggle-password').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            // Find the input element that's a sibling of the toggle button's parent
+            const input = this.closest('.input-group').querySelector('input');
+            const icon = this.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
         });
+    });
+
+    // Password match validation
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Password tidak cocok");
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+
+    password.addEventListener('change', validatePassword);
+    confirmPassword.addEventListener('keyup', validatePassword);
+
+    // WhatsApp number formatting
+    document.getElementById('whatsapp').addEventListener('input', function(e) {
+        // Remove any non-digit characters
+        let value = this.value.replace(/\D/g, '');
+        
+        // Format the number
+        if (value.startsWith('62')) {
+            value = '+' + value;
+        } else if (!value.startsWith('0') && !value.startsWith('+62')) {
+            value = '0' + value;
+        }
+        
+        // Update the input value
+        this.value = value;
+    });
+
+    // Form submission
+    const registerForm = document.querySelector('form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            // Your existing form submission code
+        });
+    }
+});
+
+// whatsapp validation
+document.getElementById('whatsapp').addEventListener('input', function(e) {
+    // Remove any non-digit characters
+    let value = this.value.replace(/\D/g, '');
+    
+    // If it starts with 0, keep it as is
+    // If it starts with 62, change to +62
+    // If it starts with +62, leave it
+    if (value.startsWith('62')) {
+        value = '+' + value;
+    } else if (!value.startsWith('0') && !value.startsWith('+62')) {
+        value = '0' + value;
     }
     
-    if (toggleConfirmPassword) {
-        toggleConfirmPassword.addEventListener('click', function() {
-            const confirmPasswordInput = document.getElementById('confirmPassword');
-            const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
-            confirmPasswordInput.type = type;
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
-    }
+    // Update the input value
+    this.value = value;
+});
+
     
     // Form submission
     if (registerForm) {

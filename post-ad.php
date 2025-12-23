@@ -21,11 +21,6 @@ try {
     $error_message = 'Terjadi kesalahan. Silakan coba lagi nanti.';
 }
 
-// Locations
-$locations = [];
-$stmt = executeQuery("SELECT name FROM locations ORDER BY name ASC");
-$locations = $stmt ? $stmt->fetchAll() : [];
-
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
