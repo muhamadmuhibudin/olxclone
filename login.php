@@ -114,35 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002f34;">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">OLXClone</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-heart me-1"></i> Favorit</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-bell me-1"></i> Notifikasi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="login.php"><i class="fas fa-sign-in-alt me-1"></i> Masuk</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    <?php include 'includes/navbar.php'; ?>
     <!-- Login Form -->
     <div class="container">
         <div class="login-container">

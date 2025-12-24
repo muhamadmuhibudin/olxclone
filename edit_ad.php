@@ -163,33 +163,9 @@ body {
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002f34;">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">OLXClone</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Beranda</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="post.php"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="my_ads.php"><i class="fas fa-list me-1"></i> Iklan Saya</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="profile.php"><i class="fas fa-user me-1"></i> Profil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+    <!-- Navbar -->
+<?php include 'includes/navbar.php'; ?>
+
 </header>
 <section class="form-section">
     <div class="container my-4">

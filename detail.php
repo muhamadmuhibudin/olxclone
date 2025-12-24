@@ -148,47 +148,7 @@ try {
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002f34;">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">OLXClone</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-heart me-1"></i> Favorit</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="post.php"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
-                    </li>
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i> <?= htmlspecialchars($_SESSION['user_name']) ?>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="my_ads.php">Iklan Saya</a></li>
-                                <li><a class="dropdown-item" href="profile.php">Profil Saya</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
-                            </ul>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="login.php"><i class="fas fa-sign-in-alt me-1"></i> Masuk</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="register.php"><i class="fas fa-user-plus me-1"></i> Daftar</a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<?php include 'includes/navbar.php'; ?>
     <!-- Main Content -->
     <div class="container my-4">
         <nav aria-label="breadcrumb" class="mb-4">

@@ -159,39 +159,13 @@ try {
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002f34;">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">OLXClone</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="post.php"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="my_ads.php"><i class="fas fa-list me-1"></i> Iklan Saya</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="profile.php"><i class="fas fa-user me-1"></i> Profil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<?php include 'includes/navbar.php'; ?>
 
     <!-- Main Content -->
     <div class="container my-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0"><i class="fas fa-list me-2"></i>Iklan Saya</h2>
-            <a href="post.php" class="btn" style="background-color: var(--primary-color); color: white;">
+            <a href="post-ad.php" class="btn" style="background-color: var(--primary-color); color: white;">
                 <i class="fas fa-plus me-1"></i> Pasang Iklan Baru
             </a>
         </div>
@@ -201,7 +175,7 @@ try {
                 <i class="fas fa-inbox"></i>
                 <h4>Belum ada iklan</h4>
                 <p class="text-muted">Anda belum memiliki iklan yang dipasang. Klik tombol di atas untuk memulai.</p>
-                <a href="post.php" class="btn mt-3" style="background-color: var(--primary-color); color: white;">
+                <a href="post-ad.php" class="btn mt-3" style="background-color: var(--primary-color); color: white;">
                     <i class="fas fa-plus me-1"></i> Pasang Iklan
                 </a>
             </div>

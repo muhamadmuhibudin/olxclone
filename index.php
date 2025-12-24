@@ -75,7 +75,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #00AA5B;
+            --primary-color: #1cb0b8ff;
             --secondary-color: #002F34;
             --light-gray: #F2F4F5;
         }
@@ -249,51 +249,17 @@ try {
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <?php include 'includes/navbar.php'; ?>
+    
+    <!-- Search Bar -->
+    <div class="bg-light py-3">
         <div class="container">
-            <a class="navbar-brand" href="index.php">OLXClone</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="mx-auto">
-                    <form class="d-flex" method="GET" action="index.php">
-                        <input class="form-control me-2" type="search" name="title" placeholder="Cari di OLXClone" value="<?= isset($_GET['title']) ? htmlspecialchars($_GET['title']) : '' ?>">
-                        <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
-                    </form>
-                </div>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="far fa-comment-dots me-1"></i> Chat</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="far fa-bell me-1"></i> Notifikasi</a>
-                    </li>
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="my_ads.php"><i class="fas fa-tag me-1"></i> Iklan Saya</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($_SESSION['user_name'] ?? 'Akun Saya') ?></a>
-                        </li>
-                        <li class="nav-item ms-2">
-                            <a href="logout.php" class="btn btn-success"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
-                        </li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="login.php"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
-                        </li>
-                        <li class="nav-item ms-2">
-                            <a href="register.php" class="btn btn-success"><i class="fas fa-user-plus me-1"></i> Daftar</a>
-                        </li>
-                    <?php endif; ?>
-                    <li class="nav-item ms-2">
-                        <a href="post-ad.php" class="btn btn-success"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
-                    </li>
-                </ul>
-            </div>
+            <form class="d-flex" method="GET" action="index.php">
+                <input class="form-control me-2" type="search" name="title" placeholder="Cari di OLXClone" value="<?= isset($_GET['title']) ? htmlspecialchars($_GET['title']) : '' ?>">
+                <button class="btn btn-success" type="submit"><i class="fas fa-search me-1"></i> Cari</button>
+            </form>
         </div>
-    </nav>
+    </div>
 
     <!-- Hero Section with Search -->
     <section class="hero-section">
@@ -394,14 +360,29 @@ try {
                     $imagePath = '';
                     
                     if (!empty($ad['image_path'])) {
-                        $cleanPath = ltrim($ad['image_path'], '/');
-                        $imagePath = strpos($cleanPath, 'uploads/ads/') === 0 ? $cleanPath : 'uploads/ads/' . $cleanPath;
-                        $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/' . ltrim($imagePath, '/');
+                        // Clean the path and ensure forward slashes
+                        $cleanPath = ltrim(str_replace('\\', '/', $ad['image_path']), '/');
                         
-                        if (!file_exists($fullPath) || !is_file($fullPath)) {
-                            $imagePath = 'https://placehold.co/400x300/e9ecef/6c757d?text=Gambar+Tidak+Ditemukan';
-                        } else {
-                            $imagePath = $baseUrl . '/OLXCLONE/' . ltrim($imagePath, '/');
+                        // Try direct path first
+                        $directPath = 'uploads/' . $cleanPath;
+                        $fullDirectPath = $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/' . $directPath;
+                        
+                        if (file_exists($fullDirectPath) && is_file($fullDirectPath)) {
+                            $imagePath = $baseUrl . '/OLXCLONE/' . $directPath;
+                        } 
+                        // Try with uploads/ads/ prefix
+                        else {
+                            $altPath = 'uploads/ads/' . $cleanPath;
+                            $fullAltPath = $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/' . $altPath;
+                            
+                            if (file_exists($fullAltPath) && is_file($fullAltPath)) {
+                                $imagePath = $baseUrl . '/OLXCLONE/' . $altPath;
+                            } 
+                            // If still not found, use placeholder
+                            else {
+                                $imagePath = 'https://placehold.co/400x300/e9ecef/6c757d?text=Gambar+Tidak+Ditemukan';
+                                error_log("Image not found. Tried: " . $fullDirectPath . " and " . $fullAltPath);
+                            }
                         }
                     } else {
                         $imagePath = 'https://placehold.co/400x300/e9ecef/6c757d?text=No+Image';

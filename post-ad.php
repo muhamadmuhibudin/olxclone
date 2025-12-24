@@ -227,33 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #002f34;">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">OLXClone</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Beranda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-heart me-1"></i> Favorit</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-bell me-1"></i> Notifikasi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="post-ad.php"><i class="fas fa-plus-circle me-1"></i> Pasang Iklan</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="profile.php"><i class="fas fa-user me-1"></i> Profil</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<?php include 'includes/navbar.php'; ?>
 
     <!-- Main Content -->
     <div class="container mb-5">
@@ -279,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if (!empty($success_message)): ?>
                 <div class="alert alert-success" role="alert">
                     <?php echo htmlspecialchars($success_message); ?>
-                    <a href="ad.php?id=<?php echo $ad_id ?? ''; ?>" class="alert-link">Lihat iklan</a>
+                    <a href="detail.php?id=<?php echo $ad_id ?? ''; ?>" class="alert-link">Lihat iklan</a>
                 </div>
             <?php endif; ?>
 
@@ -363,28 +337,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- Location Section -->
 
            <div class="mb-3">
-    <label for="location" class="form-label">Lokasi</label>
-
-    <select class="form-select <?php echo isset($errors['location']) ? 'is-invalid' : ''; ?>"
-            id="location"
-            name="location"
+    <label for="location" class="form-label">Lokasi <span class="text-danger">*</span></label>
+    <select class="form-select <?php echo isset($errors['location']) ? 'is-invalid' : ''; ?>" 
+            id="location" 
+            name="location" 
             required>
-
         <option value="">Pilih Lokasi</option>
-
-        <?php foreach ($locations as $loc): ?>
-            <option value="<?php echo htmlspecialchars($loc['name']); ?>"
-                <?php echo (!empty($_POST['location']) && $_POST['location'] === $loc['name']) ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($loc['name']); ?>
-            </option>
-        <?php endforeach; ?>
-
+        <?php 
+        try {
+            // Check if there's a locations table
+            $tables = $pdo->query("SHOW TABLES LIKE 'locations'")->rowCount();
+            if ($tables > 0) {
+                // If locations table exists, use it
+                $loc_stmt = $pdo->query("SELECT id, name FROM locations ORDER BY name ASC");
+                $locations = $loc_stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                foreach ($locations as $loc): 
+                    $selected = (isset($_POST['location']) && $_POST['location'] == $loc['name']) ? 'selected' : '';
+                    echo "<option value='" . htmlspecialchars($loc['name']) . "' $selected>" . 
+                         htmlspecialchars($loc['name']) . "</option>";
+                endforeach;
+            } else {
+                // Fallback to distinct locations from ads table
+                $loc_stmt = $pdo->query("SELECT DISTINCT location as name FROM ads WHERE location IS NOT NULL AND location != '' ORDER BY location ASC");
+                $locations = $loc_stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                // Add common locations if the ads table is empty
+                if (empty($locations)) {
+                    $common_locations = [
+                        'Jawa Timur', 'Jawa Tengah', 'Jawa Barat', 'DKI Jakarta', 
+                        'Bali', 'Sumatera Utara', 'Sulawesi Selatan', 'Kalimantan Timur'
+                    ];
+                    
+                    foreach ($common_locations as $loc) {
+                        $selected = (isset($_POST['location']) && $_POST['location'] == $loc) ? 'selected' : '';
+                        echo "<option value='" . htmlspecialchars($loc) . "' $selected>" . 
+                             htmlspecialchars($loc) . "</option>";
+                    }
+                } else {
+                    foreach ($locations as $loc): 
+                        $selected = (isset($_POST['location']) && $_POST['location'] == $loc['name']) ? 'selected' : '';
+                        echo "<option value='" . htmlspecialchars($loc['name']) . "' $selected>" . 
+                             htmlspecialchars($loc['name']) . "</option>";
+                    endforeach;
+                }
+            }
+        } catch (PDOException $e) {
+            error_log("Error fetching locations: " . $e->getMessage());
+            // Fallback to a default list if there's an error
+            $default_locations = [
+                'Jawa Timur', 'Jawa Tengah', 'Jawa Barat', 'DKI Jakarta', 
+                'Bali', 'Sumatera Utara', 'Sulawesi Selatan', 'Kalimantan Timur'
+            ];
+            
+            foreach ($default_locations as $loc) {
+                $selected = (isset($_POST['location']) && $_POST['location'] == $loc) ? 'selected' : '';
+                echo "<option value='" . htmlspecialchars($loc) . "' $selected>" . 
+                     htmlspecialchars($loc) . "</option>";
+            }
+        }
+        ?>
     </select>
-
     <?php if (isset($errors['location'])): ?>
-        <div class="invalid-feedback">
-            <?php echo htmlspecialchars($errors['location']); ?>
-        </div>
+        <div class="invalid-feedback"><?php echo htmlspecialchars($errors['location']); ?></div>
     <?php endif; ?>
 </div>
 
