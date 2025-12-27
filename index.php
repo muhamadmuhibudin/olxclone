@@ -356,43 +356,24 @@ try {
             <div class="card h-100 product-card">
                 <div class="position-relative" style="height: 200px; overflow: hidden;">
                     <?php
-                    $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
-                    $imagePath = '';
-                    
-                    if (!empty($ad['image_path'])) {
-                        // Clean the path and ensure forward slashes
-                        $cleanPath = ltrim(str_replace('\\', '/', $ad['image_path']), '/');
-                        
-                        // Try direct path first
-                        $directPath = 'uploads/' . $cleanPath;
-                        $fullDirectPath = $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/' . $directPath;
-                        
-                        if (file_exists($fullDirectPath) && is_file($fullDirectPath)) {
-                            $imagePath = $baseUrl . '/OLXCLONE/' . $directPath;
-                        } 
-                        // Try with uploads/ads/ prefix
-                        else {
-                            $altPath = 'uploads/ads/' . $cleanPath;
-                            $fullAltPath = $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/' . $altPath;
-                            
-                            if (file_exists($fullAltPath) && is_file($fullAltPath)) {
-                                $imagePath = $baseUrl . '/OLXCLONE/' . $altPath;
-                            } 
-                            // If still not found, use placeholder
-                            else {
-                                $imagePath = 'https://placehold.co/400x300/e9ecef/6c757d?text=Gambar+Tidak+Ditemukan';
-                                error_log("Image not found. Tried: " . $fullDirectPath . " and " . $fullAltPath);
-                            }
-                        }
-                    } else {
-                        $imagePath = 'https://placehold.co/400x300/e9ecef/6c757d?text=No+Image';
-                    }
-                    ?>
-                    <img src="<?= htmlspecialchars($imagePath) ?>" 
-                         class="card-img-top h-100" 
-                         alt="<?= htmlspecialchars($ad['title']) ?>"
-                         style="object-fit: cover;"
-                         onerror="this.onerror=null; this.src='https://placehold.co/400x300/e9ecef/6c757d?text=Gagal+Memuat+Gambar';">
+                $image_url = 'https://placehold.co/400x300/e9ecef/6c757d?text=No+Image';
+
+if (!empty($ad['image_path'])) {
+    // Extract filename from stored path (could be full URL or just filename)
+    $filename = basename($ad['image_path']);
+    $full_path = UPLOAD_ADS_DIR . $filename;
+    
+    if (file_exists($full_path)) {
+        $image_url = UPLOAD_ADS_WEB . $filename;
+    }
+}  
+?>
+    <img src="<?= htmlspecialchars($image_url) ?>"
+     class="card-img-top h-100"
+     alt="<?= htmlspecialchars($ad['title']) ?>"
+     style="object-fit: cover;"
+     onerror="this.onerror=null; this.src='https://placehold.co/400x300/e9ecef/6c757d?text=Gagal+Memuat+Gambar';">
+
                 </div>
                 <div class="card-body">
                     <h5 class="card-title text-truncate"><?= htmlspecialchars($ad['title']) ?></h5>

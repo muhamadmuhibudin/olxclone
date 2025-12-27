@@ -30,8 +30,8 @@ try {
     $img_row = $img_stmt->fetch(PDO::FETCH_ASSOC);
     
    $img = $img_row['image_path'] ?? '';
-if ($img && file_exists('uploads/'.$img)) {
-    unlink('uploads/'.$img);
+if ($img && file_exists(UPLOAD_ADS_DIR . $img)) {
+    unlink(UPLOAD_ADS_DIR . $img);
 }
 
     // Mulai transaksi

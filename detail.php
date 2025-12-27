@@ -9,49 +9,52 @@ if ($id <= 0) {
 }
 
 try {
+    // Pastikan $id ada dan bertipe integer
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
     // Ambil data iklan menggunakan PDO
-    $sql = "SELECT ads.*, categories.name AS category_name, users.name AS user_name, users.whatsapp
+    $sql = "SELECT ads.*, 
+                   categories.name AS category_name, 
+                   users.name AS user_name, 
+                   users.whatsapp
             FROM ads
             JOIN categories ON ads.category_id = categories.id
             JOIN users ON ads.user_id = users.id
             WHERE ads.id = :id";
+
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
+
     $ad = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$ad) {
-        echo "<script>alert('Iklan tidak ditemukan!');window.location='index.php';</script>";
+        echo "<script>alert('Iklan tidak ditemukan!'); window.location='index.php';</script>";
         exit;
     }
 
+} catch (PDOException $e) {
+    // Tampilkan pesan error (di production sebaiknya disimpan ke log)
+    echo "Terjadi kesalahan database: " . $e->getMessage();
+}
+
     // Ambil gambar iklan menggunakan PDO
-    $img_stmt = $pdo->prepare("SELECT image_path FROM ad_images WHERE ad_id = :ad_id LIMIT 1");
-    $img_stmt->bindParam(':ad_id', $id, PDO::PARAM_INT);
-    $img_stmt->execute();
-    $img_row = $img_stmt->fetch(PDO::FETCH_ASSOC);
+$image_path = 'https://placehold.co/600x400'; // Default image
+$img_stmt = $pdo->prepare("SELECT image_path FROM ad_images WHERE ad_id = :ad_id LIMIT 1");
+$img_stmt->bindParam(':ad_id', $id, PDO::PARAM_INT);
+$img_stmt->execute();
+$img_row = $img_stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Debug: Tampilkan path gambar untuk pengecekan
-    if ($img_row && !empty($img_row['image_path'])) {
-        // Gunakan path yang sudah ada di database (sudah termasuk 'uploads/ads/')
-        $image_path = $img_row['image_path'];
-        
-        // Debug: Tampilkan path yang akan digunakan
-        error_log("Trying to load image from: " . $image_path);
-        
-        // Pastikan file ada
-        if (!file_exists($image_path)) {
-            error_log("Image not found: " . $image_path);
-            $image_path = 'https://placehold.co/600x400';
-        } else {
-            error_log("Image found at: " . $image_path);
-        }
+if ($img_row && !empty($img_row['image_path'])) {
+    // Extract filename from full URL or path
+    $filename = basename($img_row['image_path']);
+    $full_path = UPLOAD_ADS_DIR . $filename;
+    
+    if (file_exists($full_path)) {
+        $image_path = UPLOAD_ADS_WEB . $filename;
     } else {
-        $image_path = 'https://placehold.co/600x400';
-        error_log("No image record found in database for ad ID: " . $id);
+        error_log("Image not found: " . $full_path);
     }
-} catch(PDOException $e) {
-    die("Error: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>

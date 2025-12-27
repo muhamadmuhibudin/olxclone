@@ -4,7 +4,6 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'olxclone');
 define('DB_USER', 'root');     // Default XAMPP username
 define('DB_PASS', '');         // Default XAMPP password is empty
-
 // Error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -54,16 +53,18 @@ function executeQuery($sql, $params = []) {
     }
 }
 
-// Define base URL for easier reference
+// Base URL
 define('BASE_URL', 'http://' . $_SERVER['HTTP_HOST'] . '/OLXCLONE');
 
-// File upload configuration
-define('UPLOAD_DIR', $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/uploads/');
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-$allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+// Upload directory (SERVER PATH)
+define('UPLOAD_ADS_DIR', $_SERVER['DOCUMENT_ROOT'] . '/OLXCLONE/uploads/ads/');
 
-// Create uploads directory if it doesn't exist
-if (!file_exists(UPLOAD_DIR)) {
-    mkdir(UPLOAD_DIR, 0777, true);
+// Upload directory (WEB PATH)
+define('UPLOAD_ADS_WEB', BASE_URL . '/uploads/ads/');
+
+// Create uploads directory if not exists
+if (!file_exists(UPLOAD_ADS_DIR)) {
+    mkdir(UPLOAD_ADS_DIR, 0755, true);
 }
+
 ?>

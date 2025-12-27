@@ -53,7 +53,7 @@ try {
             if(isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
                 $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
                 $filename = uniqid().'.'.$ext;
-                $upload_path = 'uploads/'.$filename;
+                $upload_path = UPLOAD_ADS_DIR . $filename;
                 
                 if(move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
                     // Hapus gambar lama (opsional)
@@ -62,8 +62,8 @@ try {
                     $img_stmt->execute();
                     $old_img = $img_stmt->fetch(PDO::FETCH_COLUMN);
                     
-                    if($old_img && file_exists('uploads/'.$old_img)) {
-                        unlink('uploads/'.$old_img);
+                    if($old_img && file_exists(UPLOAD_ADS_DIR . $old_img)) {
+                        unlink(UPLOAD_ADS_DIR . $old_img);
                     }
                     
                     // Update gambar
@@ -179,10 +179,17 @@ body {
                     <form action="" method="POST" enctype="multipart/form-data">
                         <div class="row g-3">
                             <!-- Current Image -->
-                            <?php if (!empty($ad['image_path'])): ?>
+                            <?php 
+                            // Get current image from ad_images table
+                            $img_stmt = $pdo->prepare("SELECT image_path FROM ad_images WHERE ad_id = :ad_id LIMIT 1");
+                            $img_stmt->bindParam(':ad_id', $id, PDO::PARAM_INT);
+                            $img_stmt->execute();
+                            $current_image = $img_stmt->fetch(PDO::FETCH_COLUMN);
+                            ?>
+                            <?php if (!empty($current_image)): ?>
                             <div class="col-12">
                                 <label class="form-label">Gambar Saat Ini:</label><br>
-                                <img src="uploads/<?= htmlspecialchars($ad['image_path']) ?>" 
+                                <img src="<?= UPLOAD_ADS_WEB . htmlspecialchars($current_image) ?>" 
                                      class="img-thumbnail" 
                                      style="max-width: 200px; max-height: 200px; object-fit: cover;">
                             </div>
@@ -249,15 +256,14 @@ body {
                                        accept="image/*">
                                 <div class="form-text">Biarkan kosong jika tidak ingin mengubah gambar.</div>
                             </div>
-                            <!-- Move this inside the form, before the file input -->
-<?php if (!empty($ad['image_path'])): ?>
-<div class="mb-3">
-    <label class="form-label">Gambar Saat Ini:</label><br>
-    <img src="uploads/<?= htmlspecialchars($ad['image_path']) ?>" 
-         class="img-thumbnail" 
-         style="max-width: 200px; max-height: 200px; object-fit: cover;">
-</div>
-<?php endif; ?>
+                            <?php if (!empty($current_image)): ?>
+                            <div class="mb-3">
+                                <label class="form-label">Gambar Saat Ini:</label><br>
+                                <img src="<?= UPLOAD_ADS_WEB . htmlspecialchars($current_image) ?>" 
+                                     class="img-thumbnail" 
+                                     style="max-width: 200px; max-height: 200px; object-fit: cover;">
+                            </div>
+                            <?php endif; ?>
 
                             <!-- Submit Button -->
                             <div class="col-12 mt-4">

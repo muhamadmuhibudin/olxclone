@@ -185,7 +185,19 @@ try {
                     <div class="col">
                         <div class="ad-card h-100">
                             <a href="detail.php?id=<?= $ad['id'] ?>" style="text-decoration: none; color: inherit;">
-                                <img src="<?= !empty($ad['image_path']) ? 'uploads/' . $ad['image_path'] : 'https://placehold.co/600x400?text=No+Image' ?>" 
+                                <img src="<?php
+$image_url = 'https://placehold.co/600x400?text=No+Image';
+if (!empty($ad['image_path'])) {
+    // Extract filename from stored path (could be full URL or just filename)
+    $filename = basename($ad['image_path']);
+    $full_path = UPLOAD_ADS_DIR . $filename;
+    
+    if (file_exists($full_path)) {
+        $image_url = UPLOAD_ADS_WEB . $filename;
+    }
+}
+echo htmlspecialchars($image_url);
+?>" 
      class="ad-image" 
      alt="<?= htmlspecialchars($ad['title']) ?>">
                                 <div class="ad-body">

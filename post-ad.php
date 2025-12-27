@@ -59,21 +59,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle image uploads
     $uploaded_images = [];
     if (isset($_FILES['images'])) {
-        $upload_dir = 'uploads/ads/';
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
+        if (!file_exists(UPLOAD_ADS_DIR)) {
+            mkdir(UPLOAD_ADS_DIR, 0777, true);
         }
         
         foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
             if ($_FILES['images']['error'][$key] === UPLOAD_ERR_OK) {
                 $file_name = uniqid() . '_' . basename($_FILES['images']['name'][$key]);
-                $target_path = $upload_dir . $file_name;
+                $target_path = UPLOAD_ADS_DIR . $file_name;
                 
                 // Validate image type
                 $file_type = mime_content_type($tmp_name);
-                if (in_array($file_type, ['image/jpeg', 'image/png', 'image/gif'])) {
+                if (in_array($file_type, ['image/jpeg', 'image/png', 'image/gif','image/webp'])) {
                     if (move_uploaded_file($tmp_name, $target_path)) {
-                        $uploaded_images[] = $target_path;
+                        // Store only filename in database (not full URL)
+                        $uploaded_images[] = $file_name;
                     }
                 }
             }
@@ -125,8 +125,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Clean up uploaded files if any
             foreach ($uploaded_images as $image) {
-                if (file_exists($image)) {
-                    unlink($image);
+                $full_path = UPLOAD_ADS_DIR . $image;
+                if (file_exists($full_path)) {
+                    unlink($full_path);
                 }
             }
         }
