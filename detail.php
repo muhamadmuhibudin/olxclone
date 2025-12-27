@@ -37,25 +37,38 @@ try {
     // Tampilkan pesan error (di production sebaiknya disimpan ke log)
     echo "Terjadi kesalahan database: " . $e->getMessage();
 }
+// Ambil semua gambar iklan
+$ad_images_stmt = $pdo->prepare("SELECT image_path FROM ad_images WHERE ad_id = :ad_id");
+$ad_images_stmt->bindParam(':ad_id', $id, PDO::PARAM_INT);
+$ad_images_stmt->execute();
+$ad_images = $ad_images_stmt->fetchAll(PDO::FETCH_COLUMN);
 
-    // Ambil gambar iklan menggunakan PDO
-$image_path = 'https://placehold.co/600x400'; // Default image
-$img_stmt = $pdo->prepare("SELECT image_path FROM ad_images WHERE ad_id = :ad_id LIMIT 1");
-$img_stmt->bindParam(':ad_id', $id, PDO::PARAM_INT);
-$img_stmt->execute();
-$img_row = $img_stmt->fetch(PDO::FETCH_ASSOC);
-    
-if ($img_row && !empty($img_row['image_path'])) {
-    // Extract filename from full URL or path
-    $filename = basename($img_row['image_path']);
-    $full_path = UPLOAD_ADS_DIR . $filename;
-    
-    if (file_exists($full_path)) {
-        $image_path = UPLOAD_ADS_WEB . $filename;
+// Cek & tambahkan path folder jika perlu
+foreach ($ad_images as &$img) {
+    if (strpos($img, '/') === false) { 
+        // Jika hanya filename, tambahkan path lengkap
+        $full_path = UPLOAD_ADS_DIR . basename($img);
+        if (file_exists($full_path)) {
+            $img = UPLOAD_ADS_WEB . basename($img);
+        } else {
+            $img = 'https://placehold.co/600x400';
+        }
+    } elseif (strpos($img, 'http') === 0) {
+        // Jika sudah full URL, biarkan saja
     } else {
-        error_log("Image not found: " . $full_path);
+        // Jika path relatif, pastikan dimulai dengan /
+        if ($img[0] !== '/') {
+            $img = '/' . $img;
+        }
     }
 }
+unset($img);
+
+// Jika tidak ada gambar, gunakan placeholder
+if (empty($ad_images)) {
+    $ad_images = ['https://placehold.co/600x400'];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -114,7 +127,34 @@ if ($img_row && !empty($img_row['image_path'])) {
             margin-bottom: 15px;
             object-fit: cover;
         }
-        
+
+        .img-thumbnail:hover {
+border: 2px solid #23e5db;
+transition: border 0.2s;
+        }
+
+        .carousel-control-prev,
+.carousel-control-next {
+    background-color: rgba(0, 0, 0, 0.3); /* hitam transparan */
+    border-radius: 50%; /* biar bulat */
+    width: 40px;
+    height: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: background-color 0.3s ease;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.6); /* lebih gelap saat hover */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: brightness(1.5) invert(1); /* bikin ikon jadi putih terang */
+}
+
+
         .btn-whatsapp {
             background-color: #25D366;
             color: white;
@@ -164,12 +204,41 @@ if ($img_row && !empty($img_row['image_path'])) {
         
         <div class="row">
             <!-- Left Column - Images -->
-            <div class="col-lg-8">
-                <div class="card mb-4">
-                    <div class="card-body p-0">
-                        <img src="<?= htmlspecialchars($image_path) ?>" alt="<?= htmlspecialchars($ad['title']) ?>" class="ad-image">
-                    </div>
+<div class="col-lg-8">
+    <div id="adCarousel" class="carousel slide mb-2" data-bs-ride="carousel" data-bs-interval="10000">
+        <div class="carousel-inner">
+            <?php foreach ($ad_images as $index => $image_path): ?>
+                <div class="carousel-item <?php echo ($index === 0) ? 'active' : ''; ?>">
+                    <img src="<?= htmlspecialchars($image_path) ?>" 
+                         class="d-block w-100" 
+                         alt="<?= htmlspecialchars($ad['title']) ?>" 
+                         style="max-height:500px; object-fit:contain;">
                 </div>
+            <?php endforeach; ?>
+        </div>
+        <!-- Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#adCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#adCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <!-- Thumbnail preview -->
+<div class="d-flex justify-content-start flex-wrap mt-2">
+    <?php foreach ($ad_images as $index => $image_path): ?>
+        <img src="<?= htmlspecialchars($image_path) ?>" 
+             class="img-thumbnail me-2 mb-2" 
+             style="width: 80px; height: 80px; object-fit: cover; cursor:pointer;"
+             data-bs-slide-to="<?= $index ?>"
+             data-bs-target="#adCarousel">
+    <?php endforeach; ?>
+</div>
+
+
                 
                 <!-- Description Section -->
                 <div class="ad-description">
@@ -330,5 +399,20 @@ $pesan = urlencode(
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Initialize carousel
+    var myCarousel = document.getElementById('adCarousel');
+    var carousel = new bootstrap.Carousel(myCarousel, {
+        interval: 5000
+    });
+
+    // Add click handlers to thumbnails
+    document.querySelectorAll('.img-thumbnail').forEach(function(thumbnail, index){
+        thumbnail.addEventListener('click', function(){
+            carousel.to(index);
+        });
+    });
+</script>
+
 </body>
 </html>

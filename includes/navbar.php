@@ -75,33 +75,28 @@ if (session_status() === PHP_SESSION_NONE) {
             
             <ul class="navbar-nav ms-auto">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <!-- Menu ketika user sudah login -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="my_ads.php"><i class="fas fa-tag me-1"></i> Iklan Saya</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="profile.php"><i class="fas fa-user-edit me-1"></i> Edit Profil</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($_SESSION['user_name'] ?? 'Akun Saya') ?>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user-edit me-2"></i>Edit Profil</a></li>
-                            <li><a class="dropdown-item" href="my_ads.php"><i class="fas fa-tag me-2"></i>Iklan Saya</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                        </ul>
-                    </li>
-                <?php else: ?>
-                    <!-- Menu ketika user belum login -->
-                    <li class="nav-item d-flex align-items-center">
-                        <a class="nav-link px-3" href="login.php"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
-                    </li>
-                    <li class="nav-item ms-1 d-flex align-items-center">
-                        <a class="btn btn-success px-3" href="register.php"><i class="fas fa-user-plus me-1"></i> Daftar</a>
-                    </li>
-                <?php endif; ?>
+    <li class="nav-item">
+        <a class="nav-link" href="my_ads.php"><i class="fas fa-tag me-1"></i> Iklan Saya</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($_SESSION['user_name'] ?? 'Akun Saya') ?>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user-edit me-2"></i>Edit Profil</a></li>
+            <li><a class="dropdown-item" href="my_ads.php"><i class="fas fa-tag me-2"></i>Iklan Saya</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+        </ul>
+    </li>
+<?php else: ?>
+    <li class="nav-item d-flex align-items-center">
+        <a class="nav-link px-3" href="login.php"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
+    </li>
+    <li class="nav-item ms-1 d-flex align-items-center">
+        <a class="btn btn-success px-3" href="register.php"><i class="fas fa-user-plus me-1"></i> Daftar</a>
+    </li>
+<?php endif; ?>
             </ul>
         </div>
     </div>

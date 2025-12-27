@@ -33,6 +33,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Validate input
     $errors = [];
+    // VALIDASI JUMLAH GAMBAR (MAKS 5)
+if (isset($_FILES['images']['name']) && count($_FILES['images']['name']) > 5) {
+    $errors['images'] = 'Maksimal unggah 5 gambar';
+}
+    // jangan proses upload
+if (empty($errors)) {
+    // proses upload gambar
+    // insert database
+} else {
+    $error_message = 'Terdapat kesalahan pada form. Silakan periksa kembali.';
+}
     
     if (empty($title)) {
         $errors['title'] = 'Judul iklan harus diisi';
@@ -70,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Validate image type
                 $file_type = mime_content_type($tmp_name);
-                if (in_array($file_type, ['image/jpeg', 'image/png', 'image/gif','image/webp'])) {
+                if (in_array($file_type, ['image/jpeg', 'image/png', 'image/gif','image/webp','image/avif'])) {
                     if (move_uploaded_file($tmp_name, $target_path)) {
                         // Store only filename in database (not full URL)
                         $uploaded_images[] = $file_name;
@@ -403,7 +414,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="invalid-feedback"><?php echo htmlspecialchars($errors['location']); ?></div>
     <?php endif; ?>
 </div>
-
+<?php if (!empty($errors)): ?>
+    <div class="alert alert-danger" role="alert">
+        <?php foreach ($errors as $error): ?>
+            <div><?php echo htmlspecialchars($error); ?></div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
                 <!-- Submit Button -->
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg">
@@ -473,49 +490,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Image preview functionality
-        function previewImages(input) {
-            const container = document.getElementById('imagePreviewContainer');
-            container.innerHTML = '';
-            
-            if (input.files) {
-                const files = Array.from(input.files).slice(0, 5); // Limit to 5 images
-                
-                files.forEach((file, index) => {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = 'position-relative d-inline-block';
-                        div.innerHTML = `
-                            <img src="${e.target.result}" class="image-preview" alt="Preview ${index + 1}">
-                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle" 
-                                    onclick="removeImage(this, ${index})" style="width: 20px; height: 20px; padding: 0; line-height: 1;">
-                                &times;
-                            </button>
-                        `;
-                        container.appendChild(div);
-                    }
-                    
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
+        let selectedFiles = [];
 
-        // Remove image from preview and file input
-        function removeImage(button, index) {
-            // Remove from preview
-            button.closest('.position-relative').remove();
-            
-            // Remove from file input
-            const input = document.getElementById('images');
-            const files = Array.from(input.files);
-            files.splice(index, 1);
-            
-            // Create new DataTransfer to update files
-            const dataTransfer = new DataTransfer();
-            files.forEach(file => dataTransfer.items.add(file));
-            input.files = dataTransfer.files;
-        }
+function previewImages(input) {
+    const container = document.getElementById('imagePreviewContainer');
+    container.innerHTML = '';
+    selectedFiles = Array.from(input.files).slice(0, 5);
+
+    selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'position-relative d-inline-block';
+            div.innerHTML = `
+                <img src="${e.target.result}" class="image-preview">
+                <button type="button"
+                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle"
+                    onclick="removeImage(${index})"
+                    style="width:20px;height:20px;padding:0;">×</button>
+            `;
+            container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    updateInputFiles();
+}
+
+function removeImage(index) {
+    selectedFiles.splice(index, 1);
+    previewImages({ files: selectedFiles });
+}
+
+function updateInputFiles() {
+    const input = document.getElementById('images');
+    const dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+}
 
         // Drag and drop functionality
         const dropArea = document.querySelector('.image-upload-area');
